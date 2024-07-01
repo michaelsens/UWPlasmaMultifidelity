@@ -2,6 +2,7 @@
 
 import glob
 import os
+import time
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -155,7 +156,13 @@ if optimizer.mpi.proc0_world:
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
 initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 ##################
+start_time = time.time()
+
 optimizer.run(ftol=ftol, n_iterations=n_iterations)
+
+end_time = time.time()
+elapsed_time = end_time - start_time
+print(f"Optimization took {elapsed_time:.2f} seconds")
 ##################
 if optimizer.mpi.proc0_world:
     print("After run:")
