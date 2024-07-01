@@ -21,8 +21,9 @@ n_iterations = 20
 ftol = 1e-5
 B0 = 5
 B2c = B0 / 7
-nsamples = 600
-tfinal = 6e-5
+nsamples_low = 100
+nsamples_high = 1000
+tfinal = 4e-5
 stellarator_index = 2
 constant_b20 = True
 energy = 3.52e6  # electron-volt
@@ -33,6 +34,7 @@ nphi = 4  # resolution in phi
 nlambda_trapped = 14  # number of pitch angles for trapped particles
 nlambda_passing = 2  # number of pitch angles for passing particles
 nthreads = 4
+switch_frequency = 10
 
 class optimize_multifidelity_loss_fraction:
     def __init__(
