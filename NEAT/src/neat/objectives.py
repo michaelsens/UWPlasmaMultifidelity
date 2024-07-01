@@ -71,6 +71,40 @@ class LossFractionResidual(base_class):
         self.compute()
         return self.orbits.loss_fraction_array[-1]
 
+class MultifidelityLossFractionResidual(LossFractionResidual):
+    def __init__(self, field, particles, nsamples_low, nsamples_high, tfinal, nthreads, r_max, switch_frequency):
+        super().__init__(field, particles, nsamples_low, tfinal, nthreads, r_max)
+        self.nsamples_low = nsamples_low
+        self.nsamples_high = nsamples_high
+        self.switch_frequency = switch_frequency
+        self.iteration = 0
+        self.bias_term = 0.0
+
+    def compute(self):
+        if self.iteration % self.switch_frequency == 0:
+            self.nsamples = self.nsamples_high
+            super().compute()
+            high_fidelity_residual = self.orbits.loss_fraction_array[-1]
+
+            self.nsamples = self.nsamples_low
+            super().compute()
+            low_fidelity_residual = self.orbits.loss_fraction_array[-1]
+
+            self.bias_term = high_fidelity_residual - low_fidelity_residual
+            self.current_residual = high_fidelity_residual
+        else:
+            self.nsamples = self.nsamples_low
+            super().compute()
+            low_fidelity_residual = self.orbits.loss_fraction_array[-1]
+
+            self.current_residual = low_fidelity_residual + self.bias_term
+
+    def J(self):
+        self.compute()
+        self.iteration += 1
+        return self.current_residual
+
+
 
 class EffectiveVelocityResidual(base_class):
     """
@@ -207,6 +241,79 @@ class OptimizeLossFractionSkeleton(base_class):
                 # (self.field.get_inv_L_grad_B, 0, 2),
                 # (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 2),
                 # (self.field.get_B20_mean, 0, 0.01),
+            ]
+        )
+
+    def run(self, ftol=1e-6, n_iterations=100):
+        """Run the optimization problem defined in this class in serial"""
+        print("Starting optimization in serial")
+        if simsopt_available:
+            least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
+        else:
+            print("Currently optimization with run() only available with simsopt")
+
+    def run_parallel(self, n_iterations=100, rel_step=1e-3, abs_step=1e-5):
+        """Run the optimization problem defined in this class in parallel"""
+        if simsopt_available:
+            self.mpi = MpiPartition()  # pylint: disable=W0201
+            if self.mpi.proc0_world:
+                print("Starting optimization in parallel")
+            least_squares_mpi_solve(
+                self.prob,
+                self.mpi,
+                grad=True,
+                rel_step=rel_step,
+                abs_step=abs_step,
+                max_nfev=n_iterations,
+            )
+        else:
+            print("Currently optimization with run() only available with simsopt")
+
+class OptimizeMultifidelityLossFractionSkeleton(base_class):
+    """
+    Skeleton of a class used to optimize a given
+    objective function using SIMSOPT with multifidelity models.
+    """
+
+    def __init__(
+        self,
+        field,
+        particles,
+        r_max=0.12,
+        nsamples_low=100,
+        nsamples_high=1000,
+        tfinal=0.0001,
+        nthreads=2,
+        switch_frequency=10,
+    ) -> None:
+        self.field = field
+        self.particles = particles
+        self.nsamples_low = nsamples_low
+        self.nsamples_high = nsamples_high
+        self.tfinal = tfinal
+        self.nthreads = nthreads
+        self.r_max = r_max
+        self.switch_frequency = switch_frequency
+
+        self.residual = MultifidelityLossFractionResidual(
+            self.field,
+            self.particles,
+            self.nsamples_low,
+            self.nsamples_high,
+            self.tfinal,
+            self.nthreads,
+            self.r_max,
+            self.switch_frequency,
+        )
+
+        self.field.fix_all()
+        self.field.unfix("rc(2)")
+        self.field.unfix("rc(3)")
+
+        # Define objective function
+        self.prob = LeastSquaresProblem.from_tuples(
+            [
+                (self.residual.J, 0, 1),
             ]
         )
 
