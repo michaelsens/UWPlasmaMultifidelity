@@ -154,7 +154,7 @@ if optimizer.mpi.proc0_world:
     print("        B2c = ", optimizer.field.B2c)
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
-initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
+initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples_low, tfinal=tfinal)
 initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 ##################
 start_time = time.time()
