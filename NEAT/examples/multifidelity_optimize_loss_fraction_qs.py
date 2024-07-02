@@ -210,7 +210,7 @@ plt.xlabel(r"r cos($\theta$)")
 plt.ylabel(r"r sin($\theta$)")
 plt.tight_layout()
 initial_orbit.plot_orbit_3d(show=False, r_surface=r_max)
-final_orbit.plot_orbit_3d(show(False, r_surface=r_max)
+final_orbit.plot_orbit_3d(show=False, r_surface=r_max)
 plt.show()
 
 # Remove output files from simsopt
