@@ -2,6 +2,7 @@
 
 import glob
 import os
+import time
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
@@ -56,6 +57,8 @@ class optimize_multifidelity_loss_fraction:
         self.r_max = r_max
         self.switch_frequency = switch_frequency
 
+        self.mpi = MpiPartition()
+
         self.residual = MultifidelityLossFractionResidual(
             self.field,
             self.particles,
@@ -78,20 +81,11 @@ class optimize_multifidelity_loss_fraction:
             ]
         )
 
-    def run(self, ftol=1e-6, n_iterations=100):
-        """Run the optimization problem defined in this class in serial"""
-        print("Starting optimization in serial")
-        if simsopt_available:
-            least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
-        else:
-            print("Currently optimization with run() only available with simsopt")
-
-    def run_parallel(self, n_iterations=100, rel_step=1e-3, abs_step=1e-5):
-        """Run the optimization problem defined in this class in parallel"""
-        if simsopt_available:
-            self.mpi = MpiPartition()  # pylint: disable=W0201
-            if self.mpi.proc0_world:
-                print("Starting optimization in parallel")
+    def run(self, ftol=1e-6, n_iterations=100, rel_step=1e-3, abs_step=1e-5):
+        # Algorithms that do not use derivatives
+        # Relative/Absolute step size ~ 1/n_particles
+        # with MPI, to see more info do mpi.write()
+        if self.parallel:
             least_squares_mpi_solve(
                 self.prob,
                 self.mpi,
@@ -101,7 +95,7 @@ class optimize_multifidelity_loss_fraction:
                 max_nfev=n_iterations,
             )
         else:
-            print("Currently optimization with run() only available with simsopt")
+            least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 g_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 g_particle = ChargedParticleEnsemble(
