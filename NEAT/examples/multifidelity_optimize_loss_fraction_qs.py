@@ -9,10 +9,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 from simsopt.objectives import LeastSquaresProblem
 from simsopt.solve import least_squares_mpi_solve, least_squares_serial_solve
-from simsopt.util.mpi import MpiPartition, log
+from simsopt.util import MpiPartition
 
 from neat.fields import StellnaQS
-from neat.objectives import EffectiveVelocityResidual, MultifidelityLossFractionResidual
+from neat.objectives import EffectiveVelocityResidual, LossFractionResidual, MultifidelityLossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 r_initial = 0.05
@@ -23,7 +23,7 @@ B0 = 5
 B2c = B0 / 7
 nsamples_low = 100
 nsamples_high = 1000
-tfinal = 4e-5
+tfinal = 6e-5
 stellarator_index = 2
 constant_b20 = True
 energy = 3.52e6  # electron-volt
@@ -47,6 +47,7 @@ class optimize_multifidelity_loss_fraction:
         tfinal=tfinal,
         nthreads=nthreads,
         switch_frequency=switch_frequency,
+        parallel=False,
     ) -> None:
         self.field = field
         self.particles = particles
@@ -56,6 +57,7 @@ class optimize_multifidelity_loss_fraction:
         self.nthreads = nthreads
         self.r_max = r_max
         self.switch_frequency = switch_frequency
+        self.parallel = parallel
 
         self.mpi = MpiPartition()
 
@@ -71,13 +73,21 @@ class optimize_multifidelity_loss_fraction:
         )
 
         self.field.fix_all()
+        self.field.unfix("etabar")
+        self.field.unfix("rc(1)")
+        self.field.unfix("zs(1)")
         self.field.unfix("rc(2)")
+        self.field.unfix("zs(2)")
         self.field.unfix("rc(3)")
+        self.field.unfix("zs(3)")
+        self.field.unfix("B2c")
 
         # Define objective function
         self.prob = LeastSquaresProblem.from_tuples(
             [
-                (self.residual.J, 0, 1),
+                (self.residual.J, 0, 40),
+                (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
+                (self.field.get_B20_mean, 0, 0.01),
             ]
         )
 
@@ -119,7 +129,7 @@ optimizer = optimize_multifidelity_loss_fraction(
     switch_frequency=switch_frequency,
 )
 test_particle = ChargedParticle(
-    r_initial=r_initial, theta_initial=np.pi / 2, phi_initial=np.pi, Lambda=1.00
+    r_initial=r_initial, theta_initial=np.pi / 2, phi_initial=np.pi, Lambda=0.98
 )
 ##################
 if optimizer.mpi.proc0_world:
@@ -161,7 +171,7 @@ if optimizer.mpi.proc0_world:
     print(" Max elongation: ", max(optimizer.field.elongation))
     print(" Max Inverse L grad B: ", max(optimizer.field.inv_L_grad_B))
     print(
-        " Max Inverse L gradgrad B: ", optimizer.field.grad_grad_B_inverse_scale_length
+        " Max Inverse L gradgrad B: ", optimizer.field.grad_grad_B.inverse_scale_length
     )
     print(" Final Mean residual: ", np.mean(optimizer.residual.J()))
     print(" Final Loss Fraction: ", optimizer.residual.orbits.loss_fraction_array[-1])
@@ -176,7 +186,7 @@ if optimizer.mpi.proc0_world:
     print("        etabar = ", optimizer.field.etabar)
     print("        B2c = ", optimizer.field.B2c)
     print("        B20 = ", optimizer.field.B20_mean)
-    optimizer.residual.orbits.plot_loss_fraction(show=False)
+    optimizer.residual.orbits.plot_loss_fraction(show(False)
     initial_patch = mpatches.Patch(color="#1f77b4", label="Initial")
     final_patch = mpatches.Patch(color="#ff7f0e", label="Final")
     plt.legend(handles=[initial_patch, final_patch])
@@ -200,7 +210,7 @@ plt.xlabel(r"r cos($\theta$)")
 plt.ylabel(r"r sin($\theta$)")
 plt.tight_layout()
 initial_orbit.plot_orbit_3d(show=False, r_surface=r_max)
-final_orbit.plot_orbit_3d(show=False, r_surface=r_max)
+final_orbit.plot_orbit_3d(show(False, r_surface=r_max)
 plt.show()
 
 # Remove output files from simsopt
