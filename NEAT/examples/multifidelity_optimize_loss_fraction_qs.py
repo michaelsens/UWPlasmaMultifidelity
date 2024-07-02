@@ -21,8 +21,8 @@ n_iterations = 20
 ftol = 1e-5
 B0 = 5
 B2c = B0 / 7
-nsamples_low = 100
-nsamples_high = 1000
+nsamples_low = 200
+nsamples_high = 600
 tfinal = 6e-5
 stellarator_index = 2
 constant_b20 = True
@@ -154,7 +154,7 @@ if optimizer.mpi.proc0_world:
     print("        B2c = ", optimizer.field.B2c)
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
-initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples_low, tfinal=tfinal)
+initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples_high, tfinal=tfinal)
 initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 ##################
 start_time = time.time()
@@ -190,7 +190,7 @@ if optimizer.mpi.proc0_world:
     initial_patch = mpatches.Patch(color="#1f77b4", label="Initial")
     final_patch = mpatches.Patch(color="#ff7f0e", label="Final")
     plt.legend(handles=[initial_patch, final_patch])
-final_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
+final_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples_high, tfinal=tfinal)
 final_field = g_field
 ##################
 plt.figure()
