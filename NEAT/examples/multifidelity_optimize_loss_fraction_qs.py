@@ -154,7 +154,7 @@ if optimizer.mpi.proc0_world:
     print("        B2c = ", optimizer.field.B2c)
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
-initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples_low, tfinal=tfinal)
+initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
 initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 ##################
 start_time = time.time()
@@ -171,7 +171,7 @@ if optimizer.mpi.proc0_world:
     print(" Max elongation: ", max(optimizer.field.elongation))
     print(" Max Inverse L grad B: ", max(optimizer.field.inv_L_grad_B))
     print(
-        " Max Inverse L gradgrad B: ", optimizer.field.grad_grad_B.inverse_scale_length
+        " Max Inverse L gradgrad B: ", optimizer.field.grad_grad_B_inverse_scale_length
     )
     print(" Final Mean residual: ", np.mean(optimizer.residual.J()))
     print(" Final Loss Fraction: ", optimizer.residual.orbits.loss_fraction_array[-1])
@@ -186,11 +186,11 @@ if optimizer.mpi.proc0_world:
     print("        etabar = ", optimizer.field.etabar)
     print("        B2c = ", optimizer.field.B2c)
     print("        B20 = ", optimizer.field.B20_mean)
-    optimizer.residual.orbits.plot_loss_fraction(show(False)
+    optimizer.residual.orbits.plot_loss_fraction(show=False)
     initial_patch = mpatches.Patch(color="#1f77b4", label="Initial")
     final_patch = mpatches.Patch(color="#ff7f0e", label="Final")
     plt.legend(handles=[initial_patch, final_patch])
-final_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples_low, tfinal=tfinal)
+final_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
 final_field = g_field
 ##################
 plt.figure()
@@ -211,6 +211,8 @@ plt.ylabel(r"r sin($\theta$)")
 plt.tight_layout()
 initial_orbit.plot_orbit_3d(show=False, r_surface=r_max)
 final_orbit.plot_orbit_3d(show=False, r_surface=r_max)
+# initial_orbit.plot_animation(show=False)
+# final_orbit.plot_animation(show=True)
 plt.show()
 
 # Remove output files from simsopt
