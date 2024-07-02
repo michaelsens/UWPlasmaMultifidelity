@@ -18,7 +18,7 @@ from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 r_initial = 0.05
 r_max = 0.1
 n_iterations = 50
-ftol = 1e-5
+ftol = 1e-7
 B0 = 5
 B2c = B0 / 7
 nsamples_low = 200
