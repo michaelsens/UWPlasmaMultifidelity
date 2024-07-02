@@ -17,7 +17,7 @@ from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 r_initial = 0.05
 r_max = 0.1
-n_iterations = 20
+n_iterations = 50
 ftol = 1e-5
 B0 = 5
 B2c = B0 / 7
@@ -34,7 +34,7 @@ nphi = 4  # resolution in phi
 nlambda_trapped = 14  # number of pitch angles for trapped particles
 nlambda_passing = 2  # number of pitch angles for passing particles
 nthreads = 4
-switch_frequency = 10
+switch_frequency = 5
 
 class optimize_multifidelity_loss_fraction:
     def __init__(
