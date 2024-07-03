@@ -21,7 +21,7 @@ n_iterations = 50
 ftol = 1e-7
 B0 = 5
 B2c = B0 / 7
-nsamples = 10000
+nsamples = 1000
 tfinal = 6e-5
 stellarator_index = 2
 constant_b20 = True
@@ -82,7 +82,7 @@ class optimize_loss_fraction:
         # Define objective function
         self.prob = LeastSquaresProblem.from_tuples(
             [
-                (self.residual.J, 0, 40),
+                (self.residual.J, 0, 1),
                 # (self.field.get_elongation, 0.0, 0.5),
                 # (self.field.get_inv_L_grad_B, 0, 0.1),
                 (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
