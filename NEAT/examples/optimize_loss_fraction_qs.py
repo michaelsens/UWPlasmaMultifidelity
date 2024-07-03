@@ -97,7 +97,7 @@ class optimize_loss_fraction:
 
         for B2c in B2cArr:
             self.field.B2c = B2c
-            self.field.compute()
+            self.field.Calculate()
             print(np.sum((self.prob.residuals())**2))
 
         
