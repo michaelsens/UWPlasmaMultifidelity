@@ -21,8 +21,8 @@ n_iterations = 50
 ftol = 1e-7
 B0 = 5
 B2c = B0 / 7
-nsamples_low = 1000
-nsamples_high = 10000
+nsamples_low = 100
+nsamples_high = 1000
 tfinal = 6e-5
 stellarator_index = 2
 constant_b20 = True
@@ -85,7 +85,7 @@ class optimize_multifidelity_loss_fraction:
         # Define objective function
         self.prob = LeastSquaresProblem.from_tuples(
             [
-                (self.residual.J, 0, 40),
+                (self.residual.J, 0, 1),
                 (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
                 (self.field.get_B20_mean, 0, 0.01),
             ]
