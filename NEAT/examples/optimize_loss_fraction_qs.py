@@ -57,7 +57,7 @@ class optimize_loss_fraction:
         self.parallel = parallel
 
         self.mpi = MpiPartition()
-        print("Initial B2c: " + str(B2c))
+        print("Initial B2c: " + str(self.field.B2c))
         for B2c in B2cArr:
             self.field.B2c = B2c
             self.field.calculate()
