@@ -58,47 +58,52 @@ class optimize_loss_fraction:
 
         self.mpi = MpiPartition()
 
-        # self.residual = LossFractionResidual(
-        self.residual = EffectiveVelocityResidual(
-            # LossFractionResidual(
-            self.field,
-            self.particles,
-            self.nsamples,
-            self.tfinal,
-            self.nthreads,
-            self.r_max,
-            constant_b20=constant_b20,
-        )
-
-        self.field.fix_all()
-        # self.field.unfix("etabar")
-        # self.field.unfix("rc(1)")
-        # self.field.unfix("zs(1)")
-        # self.field.unfix("rc(2)")
-        # self.field.unfix("zs(2)")
-        # self.field.unfix("rc(3)")
-        # self.field.unfix("zs(3)")
-        
-        ####
-   
-        
-        self.field.unfix("B2c")
-
-        # Define objective function
-        self.prob = LeastSquaresProblem.from_tuples(
-            [
-                (self.residual.J, 0, 1),
-                # (self.field.get_elongation, 0.0, 0.5),
-                # (self.field.get_inv_L_grad_B, 0, 0.1),
-                (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
-                (self.field.get_B20_mean, 0, 0.01),
-            ]
-        )
-
         for B2c in B2cArr:
             self.field.B2c = B2c
             self.field.calculate()
+            
+            
+
+            # self.residual = LossFractionResidual(
+            self.residual = EffectiveVelocityResidual(
+                # LossFractionResidual(
+                self.field,
+                self.particles,
+                self.nsamples,
+                self.tfinal,
+                self.nthreads,
+                self.r_max,
+                constant_b20=constant_b20,
+            )
+
+            self.field.fix_all()
+            # self.field.unfix("etabar")
+            # self.field.unfix("rc(1)")
+            # self.field.unfix("zs(1)")
+            # self.field.unfix("rc(2)")
+            # self.field.unfix("zs(2)")
+            # self.field.unfix("rc(3)")
+            # self.field.unfix("zs(3)")
+            
+            ####
+    
+            
+            self.field.unfix("B2c")
+
+            # Define objective function
+            self.prob = LeastSquaresProblem.from_tuples(
+                [
+                    (self.residual.J, 0, 1),
+                    # (self.field.get_elongation, 0.0, 0.5),
+                    # (self.field.get_inv_L_grad_B, 0, 0.1),
+                    (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
+                    (self.field.get_B20_mean, 0, 0.01),
+                ]
+            )
+
             print(np.sum((self.prob.residuals())**2))
+
+        
 
         
 
