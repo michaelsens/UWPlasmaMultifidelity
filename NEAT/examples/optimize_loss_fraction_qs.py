@@ -21,6 +21,7 @@ n_iterations = 50
 ftol = 1e-7
 B0 = 5
 B2c = B0 / 7
+B2cArr = np.linspace(-10, 10, 10)
 nsamples = 1000
 tfinal = 6e-5
 stellarator_index = 2
@@ -77,6 +78,10 @@ class optimize_loss_fraction:
         # self.field.unfix("zs(2)")
         # self.field.unfix("rc(3)")
         # self.field.unfix("zs(3)")
+        
+        ####
+   
+        
         self.field.unfix("B2c")
 
         # Define objective function
@@ -89,6 +94,13 @@ class optimize_loss_fraction:
                 (self.field.get_B20_mean, 0, 0.01),
             ]
         )
+
+        for B2c in B2cArr:
+            self.field.B2c = B2c
+            print(self.prob.J())
+
+        
+
 
     def run(self, ftol=1e-6, n_iterations=100, rel_step=1e-3, abs_step=1e-5):
         # Algorithms that do not use derivatives
