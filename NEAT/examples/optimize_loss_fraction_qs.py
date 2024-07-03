@@ -101,7 +101,7 @@ class optimize_loss_fraction:
                 ]
             )
 
-            print(np.sum((self.prob.residuals())**2))
+            print(np.sum((self.prob.residuals())**2) + "\t" + B2c)
 
         
 
