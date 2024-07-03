@@ -70,13 +70,13 @@ class optimize_loss_fraction:
         )
 
         self.field.fix_all()
-        self.field.unfix("etabar")
-        self.field.unfix("rc(1)")
-        self.field.unfix("zs(1)")
-        self.field.unfix("rc(2)")
-        self.field.unfix("zs(2)")
-        self.field.unfix("rc(3)")
-        self.field.unfix("zs(3)")
+        # self.field.unfix("etabar")
+        # self.field.unfix("rc(1)")
+        # self.field.unfix("zs(1)")
+        # self.field.unfix("rc(2)")
+        # self.field.unfix("zs(2)")
+        # self.field.unfix("rc(3)")
+        # self.field.unfix("zs(3)")
         self.field.unfix("B2c")
 
         # Define objective function
