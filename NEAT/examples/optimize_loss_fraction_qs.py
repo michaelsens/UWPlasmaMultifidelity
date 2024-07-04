@@ -15,13 +15,17 @@ from neat.fields import StellnaQS
 from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
+
+r_initialArr = np.linspace(-1, 1, 10)
+
+B2cArr = np.linspace(-25, 25, 10)
+
 r_initial = 0.05
 r_max = 0.1
 n_iterations = 50
 ftol = 1e-7
 B0 = 5
 B2c = B0 / 7
-B2cArr = np.linspace(-25, 25, 10)
 nsamples = 1000
 tfinal = 6e-5
 stellarator_index = 2
@@ -29,7 +33,7 @@ constant_b20 = True
 energy = 3.52e6  # electron-volt
 charge = 2  # times charge of proton
 mass = 4  # times mass of proton
-ntheta = 10  # resolution in theta
+ntheta = 10  # resolution in theta 
 nphi = 4  # resolution in phi
 nlambda_trapped = 14  # number of pitch angles for trapped particles
 nlambda_passing = 2  # number of pitch angles for passing particles
@@ -57,9 +61,9 @@ class optimize_loss_fraction:
         self.parallel = parallel
 
         self.mpi = MpiPartition()
-        print("Initial B2c: " + str(self.field.B2c))
-        for B2c in B2cArr:
-            self.field.B2c = B2c
+        print("Initial r: " + str(self.field.r_initial))
+        for r_initial in r_initialArr:
+            self.field.r_initial = r_initial
             self.field.calculate()
             
             
@@ -101,7 +105,7 @@ class optimize_loss_fraction:
                 ]
             )
 
-            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(B2c))
+            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(r_initial))
 
         exit()
 
