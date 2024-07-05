@@ -65,7 +65,7 @@ class optimize_loss_fraction:
         self.mpi = MpiPartition()
         print("Initial rc2: " + str(self.field.rc[1]))
         for rc2 in rc1_initialArr:
-            self.field.rc2[1] = rc2
+            self.field.rc[1] = rc2
             self.field.calculate()
             
             
