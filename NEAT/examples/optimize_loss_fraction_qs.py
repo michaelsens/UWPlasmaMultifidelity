@@ -25,7 +25,7 @@ r_max = 0.1
 n_iterations = 50
 ftol = 1e-7
 B0 = 5
-B2c = B0 / 7
+B2c = -25
 nsamples = 1000
 tfinal = 6e-5
 stellarator_index = 2
@@ -61,9 +61,9 @@ class optimize_loss_fraction:
         self.parallel = parallel
 
         self.mpi = MpiPartition()
-        print("Initial r: " + str(self.field.r_initial))
-        for r_initial in r_initialArr:
-            self.field.r_initial = r_initial
+        print("Initial B2c: " + str(self.field.B2c))
+        for B2c in B2cArr:
+            self.field.B2c = B2c
             self.field.calculate()
             
             
@@ -105,7 +105,7 @@ class optimize_loss_fraction:
                 ]
             )
 
-            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(r_initial))
+            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(B2c))
 
         exit()
 
@@ -129,7 +129,7 @@ class optimize_loss_fraction:
             least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 
-g_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
+g_field = StellnaQS(rc=[1, 0.155, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
 g_particle = ChargedParticleEnsemble(
     r_initial=r_initial,
     r_max=r_max,
@@ -176,7 +176,8 @@ if optimizer.mpi.proc0_world:
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
-initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
+initial_field = StellnaQS(rc=[1, 0.155, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
+
 ##################
 start_time = time.time()
 
