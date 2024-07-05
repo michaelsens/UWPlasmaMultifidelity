@@ -131,7 +131,7 @@ class optimize_loss_fraction:
             least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 
-g_field = StellnaQS(rc=[rc1, 0.155, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
+g_field = StellnaQS(rc=[1, 0.045], zs=[0, -0.045], nfp=3, etabar=-0.9)
 g_particle = ChargedParticleEnsemble(
     r_initial=r_initial,
     r_max=r_max,
@@ -178,7 +178,7 @@ if optimizer.mpi.proc0_world:
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
-initial_field = StellnaQS(rc=[1, 0.155, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
+initial_field = StellnaQS(rc=[1, 0.045], zs=[0, -0.045], nfp=3, etabar=-0.9)
 
 ##################
 start_time = time.time()
