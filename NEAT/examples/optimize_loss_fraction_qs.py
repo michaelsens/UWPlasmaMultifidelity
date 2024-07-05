@@ -63,9 +63,9 @@ class optimize_loss_fraction:
         self.parallel = parallel
 
         self.mpi = MpiPartition()
-        print("Initial rc1: " + str(self.field.rc[0]))
-        for rc1 in rc1_initialArr:
-            self.field.rc[0] = rc1
+        print("Initial rc2: " + str(self.field.rc[1]))
+        for rc2 in rc1_initialArr:
+            self.field.rc2[1] = rc2
             self.field.calculate()
             
             
@@ -84,9 +84,9 @@ class optimize_loss_fraction:
 
             self.field.fix_all()
             #self.field.unfix("etabar")
-            self.field.unfix("rc(1)")
+            #self.field.unfix("rc(1)")
             #self.field.unfix("zs(1)")
-            #self.field.unfix("rc(2)")
+            self.field.unfix("rc(2)")
             #self.field.unfix("zs(2)")
             #self.field.unfix("rc(3)")
             #self.field.unfix("zs(3)")
@@ -107,7 +107,7 @@ class optimize_loss_fraction:
                 ]
             )
 
-            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc1))
+            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc2))
 
         exit()
 
@@ -131,7 +131,7 @@ class optimize_loss_fraction:
             least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 
-g_field = StellnaQS(rc=[0.777, 0.155, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
+g_field = StellnaQS(rc=[rc1, 0.155, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
 g_particle = ChargedParticleEnsemble(
     r_initial=r_initial,
     r_max=r_max,
