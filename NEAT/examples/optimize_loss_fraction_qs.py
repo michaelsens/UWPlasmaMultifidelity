@@ -16,7 +16,7 @@ from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 
-r_initialArr = np.linspace(-1, 1, 10)
+rc1_initialArr = np.linspace(-1, 1, 10)
 
 B2cArr = np.linspace(-25, 25, 10)
 
@@ -61,9 +61,9 @@ class optimize_loss_fraction:
         self.parallel = parallel
 
         self.mpi = MpiPartition()
-        print("Initial B2c: " + str(self.field.B2c))
-        for B2c in B2cArr:
-            self.field.B2c = B2c
+        print("Initial rc1: " + str(self.field.rc[0]))
+        for rc1 in rc1_initialArr:
+            self.field.rc[0] = rc1
             self.field.calculate()
             
             
@@ -81,18 +81,18 @@ class optimize_loss_fraction:
             )
 
             self.field.fix_all()
-            self.field.unfix("etabar")
+            #self.field.unfix("etabar")
             self.field.unfix("rc(1)")
-            self.field.unfix("zs(1)")
-            self.field.unfix("rc(2)")
-            self.field.unfix("zs(2)")
+            #self.field.unfix("zs(1)")
+            #self.field.unfix("rc(2)")
+            #self.field.unfix("zs(2)")
             #self.field.unfix("rc(3)")
             #self.field.unfix("zs(3)")
             
             ####
     
             
-            self.field.unfix("B2c")
+            #self.field.unfix("B2c")
 
             # Define objective function
             self.prob = LeastSquaresProblem.from_tuples(
@@ -105,9 +105,9 @@ class optimize_loss_fraction:
                 ]
             )
 
-            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(B2c))
+            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc1))
 
-        #exit()
+        exit()
 
         
 
