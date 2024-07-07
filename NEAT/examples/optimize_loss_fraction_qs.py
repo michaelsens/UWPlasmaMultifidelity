@@ -22,6 +22,7 @@ B2cArr = np.linspace(-25, 25, 10)
 
 B2c = -25
 rc1 = 0.777
+rc2 = 1.666
 
 r_initial = 0.05
 r_max = 0.1
@@ -63,9 +64,9 @@ class optimize_loss_fraction:
         self.parallel = parallel
 
         self.mpi = MpiPartition()
-        print("Initial rc2: " + str(self.field.rc[1]))
-        for rc2 in rc1_initialArr:
-            self.field.rc[1] = rc2
+        print("Initial rc3: " + str(self.field.rc[2]))
+        for rc3 in rc1_initialArr:
+            self.field.rc[2] = rc3
             self.field.calculate()
             
             
@@ -86,9 +87,9 @@ class optimize_loss_fraction:
             #self.field.unfix("etabar")
             #self.field.unfix("rc(1)")
             #self.field.unfix("zs(1)")
-            self.field.unfix("rc(2)")
+            #self.field.unfix("rc(2)")
             #self.field.unfix("zs(2)")
-            #self.field.unfix("rc(3)")
+            self.field.unfix("rc(3)")
             #self.field.unfix("zs(3)")
             
             ####
@@ -106,8 +107,8 @@ class optimize_loss_fraction:
                     (self.field.get_B20_mean, 0, 0.01),
                 ]
             )
-
-            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc2))
+            
+            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc3))
 
         exit()
 
@@ -131,7 +132,7 @@ class optimize_loss_fraction:
             least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 
-g_field = StellnaQS(rc=[1, 0.045], zs=[0, -0.045], nfp=3, etabar=-0.9)
+g_field = StellnaQS(rc=[rc1, rc2, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
 g_particle = ChargedParticleEnsemble(
     r_initial=r_initial,
     r_max=r_max,
@@ -178,7 +179,7 @@ if optimizer.mpi.proc0_world:
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
-initial_field = StellnaQS(rc=[1, 0.045], zs=[0, -0.045], nfp=3, etabar=-0.9)
+initial_field = StellnaQS(rc=[rc1, rc2, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
 
 ##################
 start_time = time.time()
