@@ -16,13 +16,14 @@ from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 
-rc1_initialArr = np.linspace(-5, 5, 10)
+rc1_initialArr = np.linspace(-2, 2, 10)
 
 B2cArr = np.linspace(-25, 25, 10)
 
 B2c = -25
-rc1 = 0.777
-rc2 = 1.666
+rc0 = 0.777
+rc1 = 1.666
+rc2 = -0.1
 
 r_initial = 0.05
 r_max = 0.1
@@ -64,9 +65,9 @@ class optimize_loss_fraction:
         self.parallel = parallel
 
         self.mpi = MpiPartition()
-        print("Initial rc3: " + str(self.field.rc[2]))
-        for rc3 in rc1_initialArr:
-            self.field.rc[2] = rc3
+        print("Initial rc1: " + str(self.field.rc[1]))
+        for rc1 in rc1_initialArr:
+            self.field.rc[1] = rc1
             self.field.calculate()
             
             
@@ -85,12 +86,12 @@ class optimize_loss_fraction:
 
             self.field.fix_all()
             #self.field.unfix("etabar")
+            #self.field.unfix("rc(0)")
+            #self.field.unfix("zs(0)")
             #self.field.unfix("rc(1)")
             #self.field.unfix("zs(1)")
             #self.field.unfix("rc(2)")
             #self.field.unfix("zs(2)")
-            self.field.unfix("rc(3)")
-            #self.field.unfix("zs(3)")
             
             ####
     
@@ -108,7 +109,7 @@ class optimize_loss_fraction:
                 ]
             )
             
-            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc3))
+            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc1))
 
         exit()
 
