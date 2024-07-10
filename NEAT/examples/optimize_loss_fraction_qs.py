@@ -16,13 +16,15 @@ from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 
-initialArr = np.linspace(-.5, .5, 25)
+initialArr = np.linspace(-.5, .5, 50)
 
 
 B2c = -25
 rc0 = 0.777
 rc1 = 1.666
 rc2 = -0.1
+zs0 = 0
+zs1 = 0
 
 r_initial = 0.05
 r_max = 0.1
@@ -118,10 +120,10 @@ class optimize_loss_fraction:
 
         plt.figure()
         plt.plot(values, result_values, marker='o')
-        plt.xlabel('zs0')
+        plt.xlabel('zs1')
         plt.ylabel('Sum of Squared Residuals')
         plt.yscale('log')
-        plt.title('Effect of zs0 on Sum of Squared Residuals')
+        plt.title('Effect of zs1 on Sum of Squared Residuals')
         plt.grid(True)
         plt.tight_layout()
         plt.show()
