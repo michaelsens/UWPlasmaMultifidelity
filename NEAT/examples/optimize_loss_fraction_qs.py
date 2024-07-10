@@ -121,10 +121,10 @@ class optimize_loss_fraction:
 
         plt.figure()
         plt.plot(values, result_values, marker='o')
-        plt.xlabel('zs2')
+        plt.xlabel('etabar')
         plt.ylabel('Sum of Squared Residuals')
         plt.yscale('log')
-        plt.title('Effect of zs2 on Sum of Squared Residuals')
+        plt.title('Effect of etabar on Sum of Squared Residuals')
         plt.grid(True)
         plt.tight_layout()
         plt.show()
