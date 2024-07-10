@@ -16,9 +16,8 @@ from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 
-rc1_initialArr = np.linspace(-2, 2, 10)
+initialArr = np.linspace(-5, 5, 25)
 
-B2cArr = np.linspace(-25, 25, 10)
 
 B2c = -25
 rc0 = 0.777
@@ -64,10 +63,12 @@ class optimize_loss_fraction:
         self.r_max = r_max
         self.parallel = parallel
 
+        results = []
+
         self.mpi = MpiPartition()
-        print("Initial rc1: " + str(self.field.rc[1]))
-        for rc1 in rc1_initialArr:
-            self.field.rc[1] = rc1
+        print("Initial: " + str(self.field.zs[0]))
+        for val in initialArr:
+            self.field.zs[0] = val
             self.field.calculate()
             
             
@@ -87,7 +88,7 @@ class optimize_loss_fraction:
             self.field.fix_all()
             #self.field.unfix("etabar")
             #self.field.unfix("rc(0)")
-            #self.field.unfix("zs(0)")
+            self.field.unfix("zs(0)")
             #self.field.unfix("rc(1)")
             #self.field.unfix("zs(1)")
             #self.field.unfix("rc(2)")
@@ -108,8 +109,21 @@ class optimize_loss_fraction:
                     (self.field.get_B20_mean, 0, 0.01),
                 ]
             )
-            
-            print(str(np.sum((self.prob.residuals())**2)) + "\t" + str(rc1))
+
+            result = np.sum((self.prob.residuals())**2)
+            print(str(result) + "\t" + str(val))
+            results.append((val, result))
+
+        values, result_values = zip(*results)
+
+        plt.figure()
+        plt.plot(values, result_values, marker='o')
+        plt.xlabel('zs0')
+        plt.ylabel('Sum of Squared Residuals')
+        plt.title('Effect of zs0 on Sum of Squared Residuals')
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
 
         exit()
 
