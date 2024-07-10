@@ -16,7 +16,7 @@ from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 
-initialArr = np.linspace(-5, 5, 25)
+initialArr = np.linspace(-2, 2, 25)
 
 
 B2c = -25
