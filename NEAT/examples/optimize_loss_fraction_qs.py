@@ -66,9 +66,9 @@ class optimize_loss_fraction:
         results = []
 
         self.mpi = MpiPartition()
-        print("Initial: " + str(self.field.zs[0]))
+        print("Initial: " + str(self.field.zs[1]))
         for val in initialArr:
-            self.field.zs[0] = val
+            self.field.zs[1] = val
             self.field.calculate()
             
             
@@ -88,9 +88,9 @@ class optimize_loss_fraction:
             self.field.fix_all()
             #self.field.unfix("etabar")
             #self.field.unfix("rc(0)")
-            self.field.unfix("zs(0)")
+            #self.field.unfix("zs(0)")
             #self.field.unfix("rc(1)")
-            #self.field.unfix("zs(1)")
+            self.field.unfix("zs(1)")
             #self.field.unfix("rc(2)")
             #self.field.unfix("zs(2)")
             
