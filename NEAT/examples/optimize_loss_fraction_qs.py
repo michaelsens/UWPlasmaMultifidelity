@@ -26,6 +26,7 @@ rc2 = -0.1
 zs0 = 0
 zs1 = 0.112
 zs2 = 0.012
+etabar = 0.75
 
 r_initial = 0.05
 r_max = 0.1
@@ -66,70 +67,66 @@ class optimize_loss_fraction:
         self.r_max = r_max
         self.parallel = parallel
 
-        results = []
+        #results = []
 
         self.mpi = MpiPartition()
-        print("Initial: " + str(self.field.etabar))
-        for val in initialArr:
-            self.field.etabar = val
-            self.field.calculate()
+        #print("Initial: " + str(self.field.etabar))
+        #for val in initialArr:
+            #self.field.etabar = val
+            #self.field.calculate()
             
             
 
             # self.residual = LossFractionResidual(
-            self.residual = EffectiveVelocityResidual(
-                # LossFractionResidual(
-                self.field,
-                self.particles,
-                self.nsamples,
-                self.tfinal,
-                self.nthreads,
-                self.r_max,
-                constant_b20=constant_b20,
-            )
+        self.residual = EffectiveVelocityResidual(
+            # LossFractionResidual(
+            self.field,
+            self.particles,
+            self.nsamples,
+            self.tfinal,
+            self.nthreads,
+            self.r_max,
+            constant_b20=constant_b20,
+        )
 
-            self.field.fix_all()
-            self.field.unfix("etabar")
-            #self.field.unfix("rc(0)")
-            #self.field.unfix("zs(0)")
-            #self.field.unfix("rc(1)")
-            #self.field.unfix("zs(1)")
-            #self.field.unfix("rc(2)")
-            #self.field.unfix("zs(2)")
-            
-            ####
-    
-            
-            #self.field.unfix("B2c")
+        self.field.fix_all()
+        self.field.unfix("etabar")
+        self.field.unfix("rc(0)")
+        self.field.unfix("zs(0)")
+        self.field.unfix("rc(1)")
+        self.field.unfix("zs(1)")
+        self.field.unfix("rc(2)")
+        self.field.unfix("zs(2)")
+        self.field.unfix("B2c")
 
-            # Define objective function
-            self.prob = LeastSquaresProblem.from_tuples(
-                [
-                    (self.residual.J, 0, 1),
-                    # (self.field.get_elongation, 0.0, 0.5),
-                    # (self.field.get_inv_L_grad_B, 0, 0.1),
-                    (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
-                    (self.field.get_B20_mean, 0, 0.01),
-                ]
-            )
+        # Define objective function
+        self.prob = LeastSquaresProblem.from_tuples(
+            [
+                (self.residual.J, 0, 1),
+                # (self.field.get_elongation, 0.0, 0.5),
+                # (self.field.get_inv_L_grad_B, 0, 0.1),
+                (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
+                (self.field.get_B20_mean, 0, 0.01),
+            ]
+        )
 
-            result = np.sum((self.prob.residuals())**2)
-            print(str(result) + "\t" + str(val))
-            results.append((val, result))
+            #result = np.sum((self.prob.residuals())**2)
+            #print(str(result) + "\t" + str(val))
+            #results.append((val, result))
 
-        values, result_values = zip(*results)
+        #values, result_values = zip(*results)
 
-        plt.figure()
-        plt.plot(values, result_values, marker='o')
-        plt.xlabel('etabar')
-        plt.ylabel('Sum of Squared Residuals')
-        plt.yscale('log')
-        plt.title('Effect of etabar on Sum of Squared Residuals')
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
+        # plt.figure()
+        # plt.plot(values, result_values, marker='o')
+        # plt.xlabel('etabar')
+        # plt.ylabel('Sum of Squared Residuals')
+        # plt.yscale('log')
+        # plt.title('Effect of etabar on Sum of Squared Residuals')
+        # plt.grid(True)
+        # plt.tight_layout()
+        # plt.show()
 
-        exit()
+        # exit()
 
         
 
@@ -151,7 +148,7 @@ class optimize_loss_fraction:
             least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 
-g_field = StellnaQS(rc=[rc0, rc1, rc2], zs=[zs0, zs1, zs2], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
+g_field = StellnaQS(rc=[rc0, rc1, rc2], zs=[zs0, zs1, zs2], nfp=2, etabar=etabar, order='r2', B2c=B2c, B0=B0)
 g_particle = ChargedParticleEnsemble(
     r_initial=r_initial,
     r_max=r_max,
@@ -198,7 +195,7 @@ if optimizer.mpi.proc0_world:
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
-initial_field = StellnaQS(rc=[rc1, rc2, 0.0102], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
+initial_field = StellnaQS(rc=[rc0, rc1, rc2], zs=[zs0, zs1, zs2], nfp=2, etabar=etabar, order='r2', B2c=B2c, B0=B0)
 
 ##################
 start_time = time.time()
