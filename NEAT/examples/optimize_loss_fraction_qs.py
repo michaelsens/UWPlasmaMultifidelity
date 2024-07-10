@@ -24,7 +24,7 @@ rc0 = 0.777
 rc1 = 1.666
 rc2 = -0.1
 zs0 = 0
-zs1 = 0
+zs1 = 0.112
 
 r_initial = 0.05
 r_max = 0.1
@@ -68,9 +68,9 @@ class optimize_loss_fraction:
         results = []
 
         self.mpi = MpiPartition()
-        print("Initial: " + str(self.field.zs[1]))
+        print("Initial: " + str(self.field.zs[2]))
         for val in initialArr:
-            self.field.zs[1] = val
+            self.field.zs[2] = val
             self.field.calculate()
             
             
@@ -92,9 +92,9 @@ class optimize_loss_fraction:
             #self.field.unfix("rc(0)")
             #self.field.unfix("zs(0)")
             #self.field.unfix("rc(1)")
-            self.field.unfix("zs(1)")
+            #self.field.unfix("zs(1)")
             #self.field.unfix("rc(2)")
-            #self.field.unfix("zs(2)")
+            self.field.unfix("zs(2)")
             
             ####
     
@@ -120,10 +120,10 @@ class optimize_loss_fraction:
 
         plt.figure()
         plt.plot(values, result_values, marker='o')
-        plt.xlabel('zs1')
+        plt.xlabel('zs2')
         plt.ylabel('Sum of Squared Residuals')
         plt.yscale('log')
-        plt.title('Effect of zs1 on Sum of Squared Residuals')
+        plt.title('Effect of zs2 on Sum of Squared Residuals')
         plt.grid(True)
         plt.tight_layout()
         plt.show()
@@ -150,7 +150,7 @@ class optimize_loss_fraction:
             least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 
-g_field = StellnaQS(rc=[rc0, rc1, rc2], zs=[0, 0.154, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
+g_field = StellnaQS(rc=[rc0, rc1, rc2], zs=[zs0, zs1, 0.0111], nfp=2, etabar=0.64, order='r2', B2c=B2c, B0=B0)
 g_particle = ChargedParticleEnsemble(
     r_initial=r_initial,
     r_max=r_max,
