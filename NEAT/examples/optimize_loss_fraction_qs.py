@@ -18,7 +18,8 @@ from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 r_initial = 0.05
 r_max = 0.1
 n_iterations = 200
-ftol = 1e-5
+ftol = 1e-12 
+xtol = 1e-12 
 B0 = 5
 B2c = B0 / 7
 nsamples = 100
@@ -90,7 +91,7 @@ class optimize_loss_fraction:
             ]
         )
 
-    def run(self, ftol=1e-7, n_iterations=200, rel_step=1e-4, abs_step=1e-6):
+    def run(self, ftol=1e-12, xtol=1e-12, n_iterations=200, rel_step=1e-4, abs_step=1e-6):
         # Algorithms that do not use derivatives
         # Relative/Absolute step size ~ 1/n_particles
         # with MPI, to see more info do mpi.write()
@@ -104,7 +105,7 @@ class optimize_loss_fraction:
                 max_nfev=n_iterations,
             )
         else:
-            least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
+            least_squares_serial_solve(self.prob, ftol=ftol, xtol=xtol, max_nfev=n_iterations)
 
 
 g_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
@@ -156,7 +157,7 @@ if optimizer.mpi.proc0_world:
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
 initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 ##################
-optimizer.run(ftol=1e-10, n_iterations=200, rel_step=1e-6, abs_step=1e-8, max_nfev=500)
+optimizer.run(ftol=ftol, xtol=xtol, n_iterations=n_iterations)
 ##################
 if optimizer.mpi.proc0_world:
     print("After run:")
