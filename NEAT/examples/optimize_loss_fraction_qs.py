@@ -156,7 +156,7 @@ if optimizer.mpi.proc0_world:
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
 initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 ##################
-optimizer.run(ftol=ftol, n_iterations=n_iterations)
+optimizer.run(ftol=1e-10, n_iterations=200, rel_step=1e-6, abs_step=1e-8, max_nfev=500)
 ##################
 if optimizer.mpi.proc0_world:
     print("After run:")
