@@ -17,11 +17,11 @@ from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
 r_initial = 0.05
 r_max = 0.1
-n_iterations = 20
+n_iterations = 200
 ftol = 1e-5
 B0 = 5
 B2c = B0 / 7
-nsamples = 600
+nsamples = 100
 tfinal = 4e-5
 stellarator_index = 2
 constant_b20 = True
@@ -90,7 +90,7 @@ class optimize_loss_fraction:
             ]
         )
 
-    def run(self, ftol=1e-6, n_iterations=100, rel_step=1e-4, abs_step=1e-6):
+    def run(self, ftol=1e-7, n_iterations=200, rel_step=1e-4, abs_step=1e-6):
         # Algorithms that do not use derivatives
         # Relative/Absolute step size ~ 1/n_particles
         # with MPI, to see more info do mpi.write()
