@@ -2,13 +2,14 @@
 
 import glob
 import os
+import time
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
-from simsopt import LeastSquaresProblem, least_squares_serial_solve
-from simsopt.solve.mpi import least_squares_mpi_solve
-from simsopt.util.mpi import MpiPartition, log
+from simsopt.objectives import LeastSquaresProblem
+from simsopt.solve import least_squares_mpi_solve, least_squares_serial_solve
+from simsopt.util import MpiPartition
 
 from neat.fields import StellnaQS
 from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
