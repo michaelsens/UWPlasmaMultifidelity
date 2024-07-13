@@ -1,46 +1,33 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import glob
 import os
-import time
 
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
-from simsopt.objectives import LeastSquaresProblem
-from simsopt.solve import least_squares_mpi_solve, least_squares_serial_solve
-from simsopt.util import MpiPartition
+from simsopt import LeastSquaresProblem, least_squares_serial_solve
+from simsopt.solve.mpi import least_squares_mpi_solve
+from simsopt.util.mpi import MpiPartition, log
 
 from neat.fields import StellnaQS
 from neat.objectives import EffectiveVelocityResidual, LossFractionResidual
 from neat.tracing import ChargedParticle, ChargedParticleEnsemble, ParticleOrbit
 
-
-initialArr = np.linspace(-1, 1, 50)
-
-
-B2c = -25
-rc0 = 0.777
-rc1 = 1.666
-rc2 = -0.1
-zs0 = 0
-zs1 = 0.112
-zs2 = 0.012
-etabar = 0.75
-
 r_initial = 0.05
 r_max = 0.1
-n_iterations = 50
-ftol = 1e-7
+n_iterations = 20
+ftol = 1e-5
 B0 = 5
-nsamples = 1000
-tfinal = 6e-5
+B2c = B0 / 7
+nsamples = 600
+tfinal = 4e-5
 stellarator_index = 2
 constant_b20 = True
 energy = 3.52e6  # electron-volt
 charge = 2  # times charge of proton
 mass = 4  # times mass of proton
-ntheta = 10  # resolution in theta 
+ntheta = 10  # resolution in theta
 nphi = 4  # resolution in phi
 nlambda_trapped = 14  # number of pitch angles for trapped particles
 nlambda_passing = 2  # number of pitch angles for passing particles
@@ -67,17 +54,9 @@ class optimize_loss_fraction:
         self.r_max = r_max
         self.parallel = parallel
 
-        #results = []
-
         self.mpi = MpiPartition()
-        #print("Initial: " + str(self.field.etabar))
-        #for val in initialArr:
-            #self.field.etabar = val
-            #self.field.calculate()
-            
-            
 
-            # self.residual = LossFractionResidual(
+        # self.residual = LossFractionResidual(
         self.residual = EffectiveVelocityResidual(
             # LossFractionResidual(
             self.field,
@@ -91,18 +70,18 @@ class optimize_loss_fraction:
 
         self.field.fix_all()
         self.field.unfix("etabar")
-        self.field.unfix("rc(0)")
-        self.field.unfix("zs(0)")
         self.field.unfix("rc(1)")
         self.field.unfix("zs(1)")
         self.field.unfix("rc(2)")
         self.field.unfix("zs(2)")
+        self.field.unfix("rc(3)")
+        self.field.unfix("zs(3)")
         self.field.unfix("B2c")
 
         # Define objective function
         self.prob = LeastSquaresProblem.from_tuples(
             [
-                (self.residual.J, 0, 1),
+                (self.residual.J, 0, 40),
                 # (self.field.get_elongation, 0.0, 0.5),
                 # (self.field.get_inv_L_grad_B, 0, 0.1),
                 (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
@@ -110,28 +89,7 @@ class optimize_loss_fraction:
             ]
         )
 
-            #result = np.sum((self.prob.residuals())**2)
-            #print(str(result) + "\t" + str(val))
-            #results.append((val, result))
-
-        #values, result_values = zip(*results)
-
-        # plt.figure()
-        # plt.plot(values, result_values, marker='o')
-        # plt.xlabel('etabar')
-        # plt.ylabel('Sum of Squared Residuals')
-        # plt.yscale('log')
-        # plt.title('Effect of etabar on Sum of Squared Residuals')
-        # plt.grid(True)
-        # plt.tight_layout()
-        # plt.show()
-
-        # exit()
-
-        
-
-
-    def run(self, ftol=1e-6, n_iterations=100, rel_step=1e-3, abs_step=1e-5):
+    def run(self, ftol=1e-6, n_iterations=100, rel_step=1e-4, abs_step=1e-6):
         # Algorithms that do not use derivatives
         # Relative/Absolute step size ~ 1/n_particles
         # with MPI, to see more info do mpi.write()
@@ -148,7 +106,7 @@ class optimize_loss_fraction:
             least_squares_serial_solve(self.prob, ftol=ftol, max_nfev=n_iterations)
 
 
-g_field = StellnaQS(rc=[rc0, rc1, rc2], zs=[zs0, zs1, zs2], nfp=2, etabar=etabar, order='r2', B2c=B2c, B0=B0)
+g_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 g_particle = ChargedParticleEnsemble(
     r_initial=r_initial,
     r_max=r_max,
@@ -169,7 +127,7 @@ optimizer = optimize_loss_fraction(
     constant_b20=constant_b20,
 )
 test_particle = ChargedParticle(
-    r_initial=r_initial, theta_initial=np.pi / 2, phi_initial=np.pi, Lambda=0.98
+    r_initial=r_initial, theta_initial=np.pi / 2, phi_initial=np.pi, Lambda=1.00
 )
 ##################
 if optimizer.mpi.proc0_world:
@@ -195,16 +153,9 @@ if optimizer.mpi.proc0_world:
     print("        B20 = ", optimizer.field.B20_mean)
     optimizer.residual.orbits.plot_loss_fraction(show=False)
 initial_orbit = ParticleOrbit(test_particle, g_field, nsamples=nsamples, tfinal=tfinal)
-initial_field = StellnaQS(rc=[rc0, rc1, rc2], zs=[zs0, zs1, zs2], nfp=2, etabar=etabar, order='r2', B2c=B2c, B0=B0)
-
+initial_field = StellnaQS.from_paper(stellarator_index, nphi=151, B2c=B2c, B0=B0)
 ##################
-start_time = time.time()
-
 optimizer.run(ftol=ftol, n_iterations=n_iterations)
-
-end_time = time.time()
-elapsed_time = end_time - start_time
-print(f"\nOptimization took {elapsed_time:.2f} seconds\n")
 ##################
 if optimizer.mpi.proc0_world:
     print("After run:")
