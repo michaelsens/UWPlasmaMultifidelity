@@ -31,8 +31,8 @@ charge = 2  # times charge of proton
 mass = 4  # times mass of proton
 ntheta = 10  # resolution in theta
 nphi = 4  # resolution in phi
-nlambda_trapped = 14  # number of pitch angles for trapped particles
-nlambda_passing = 2  # number of pitch angles for passing particles
+nlambda_trapped = 56  # number of pitch angles for trapped particles
+nlambda_passing = 8  # number of pitch angles for passing particles
 nthreads = 4
 
 
@@ -83,7 +83,7 @@ class optimize_loss_fraction:
         # Define objective function
         self.prob = LeastSquaresProblem.from_tuples(
             [
-                (self.residual.J, 0, 1),
+                (self.residual.J, 0, 40),
                 # (self.field.get_elongation, 0.0, 0.5),
                 # (self.field.get_inv_L_grad_B, 0, 0.1),
                 (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
