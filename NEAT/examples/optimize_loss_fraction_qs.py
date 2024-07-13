@@ -83,7 +83,7 @@ class optimize_loss_fraction:
         # Define objective function
         self.prob = LeastSquaresProblem.from_tuples(
             [
-                (self.residual.J, 0, 40),
+                (self.residual.J, 0, 1),
                 # (self.field.get_elongation, 0.0, 0.5),
                 # (self.field.get_inv_L_grad_B, 0, 0.1),
                 (self.field.get_grad_grad_B_inverse_scale_length_vs_varphi, 0, 0.01),
